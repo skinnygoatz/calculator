@@ -1,0 +1,97 @@
+* {
+    margin: 0;
+    padding: 0;
+    font-weight: bold;
+    font-family: cursive;
+    /* border: 2px solid red; */
+}
+
+body {
+    background-color: pink;
+}
+
+.container {
+    display: grid;
+    place-items: center;
+}
+
+.calc {
+    display: flex;
+    flex-direction: column;
+    flex-wrap: wrap;
+    align-items: center;
+    border: 3px solid blue;
+    border-radius: 10%;
+    margin-top: 100px;
+    padding: 10px;
+}
+
+.screen {
+    margin-top: 20px;
+    border: 2px solid black;
+    border-radius: 10px;
+    padding: 20px;
+}
+.screenInfo {
+    overflow-wrap: break-word;
+    text-align: end;
+    width: 280px;
+    font-size: 30px;
+}
+
+.buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    margin-top: 15px;
+    width: 350px;
+    gap: 8px;
+}
+
+.row1,
+.row2,
+.row3,
+.row4,
+.row5 {
+    display: flex;
+    justify-content: space-evenly;
+    width: 100%;
+}
+
+.clear,
+.erase,
+.mod,
+.div,
+.seven,
+.eigth,
+.nine,
+.add,
+.four,
+.five, 
+.six,
+.sub,
+.one,
+.two,
+.three,
+.mult,
+.equal,
+.dot {
+    font-size: 20px;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+}
+
+.zero {
+    font-size: 20px;
+    flex-grow: 0.7;
+    border-radius: 100px;
+}
+
+
+
+
+
+
+
