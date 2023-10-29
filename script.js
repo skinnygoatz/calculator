@@ -1,4 +1,3 @@
-console.log("hello world!");
 // Screen Info
 const screen = document.querySelector(".screen");
 const screenInfo = document.querySelector(".screenInfo");
