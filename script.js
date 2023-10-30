@@ -97,7 +97,7 @@ function isOperation(value)
 {
     if (current_string.length > 0 && current_string[current_string.length - 1] == '.')
     {
-        console.log("Can't place operation after a deciaml");
+        console.log("No more decimal points allow");
         return false;
     }
     const ops = ['%', '÷', '×', '-', '+'];
@@ -156,6 +156,7 @@ function handleCalculatorInput(value)
     else if (value == "=" && current_string.length > 0 && (!(isOperation(current_string[current_string.length - 1]))))
     {
         // must not be empty characters and be a valid input no operation spam (prevents automatic 0 if no value is placed)
+        getAnswer();
         separate();
     }   
 }
@@ -210,6 +211,50 @@ function deletePrev(string)
     }
 }
 
+function getAnswer()
+{
+    // Runs only is there exist a multiple
+    if (current_string.includes('×'))
+    {
+        let multIndex = current_string.search('×');
+        let len = current_string.length;
+        // Index where x is
+        let leftIndex = multIndex - 1;
+
+        while (leftIndex >= 0 && (!(isOperation(current_string[leftIndex]))))
+        {
+            leftIndex -= 1;
+        }
+        // First half of string
+        let firstHalf = current_string.slice(0, leftIndex + 1);
+        
+        let rightIndex = multIndex + 1;
+        while (rightIndex < len && (!(isOperation(current_string[rightIndex]))))
+        {
+            rightIndex += 1;
+        }
+        let secondHalf = current_string.slice(rightIndex, len);
+        
+        console.log("Current string:", current_string);
+        console.log("Fist half:", firstHalf);
+        console.log("Second half:", secondHalf);
+
+        if (firstHalf.length == 0 && secondHalf.length == 0)
+        {
+            console.log("Only one single operation being done");
+            return;
+        }
+
+        let finalResult = "";
+        let num1 = Number(current_string.slice(leftIndex + 1, multIndex));
+        let num2 = Number(current_string.slice(multIndex + 1, rightIndex));
+        console.log("Number 1:", num1);
+        console.log("Number 2:", num2);
+        // caluate result with number 1 and 2
+
+    }
+
+}
 // Sets up string to be caluated
 // Splits up the numbers and operations into an array
 function separate()
