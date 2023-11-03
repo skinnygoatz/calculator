@@ -214,47 +214,64 @@ function deletePrev(string)
 function getAnswer()
 {
     // Runs only is there exist a multiple
-    if (current_string.includes('×'))
+    while (current_string.includes('×') || current_string.includes('÷'))
     {
         let multIndex = current_string.search('×');
-        let len = current_string.length;
-        // Index where x is
-        let leftIndex = multIndex - 1;
+        let divIndex = current_string.search('÷');
 
-        while (leftIndex >= 0 && (!(isOperation(current_string[leftIndex]))))
+        if (multIndex > divIndex)
         {
-            leftIndex -= 1;
+            evaluate(multIndex, mult);
         }
-        // First half of string
-        let firstHalf = current_string.slice(0, leftIndex + 1);
-        
-        let rightIndex = multIndex + 1;
-        while (rightIndex < len && (!(isOperation(current_string[rightIndex]))))
+        else if (divIndex > multIndex)
         {
-            rightIndex += 1;
+            evaluate(divIndex, div);
         }
-        let secondHalf = current_string.slice(rightIndex, len);
-        
-        console.log("Current string:", current_string);
-        console.log("Fist half:", firstHalf);
-        console.log("Second half:", secondHalf);
-
-        if (firstHalf.length == 0 && secondHalf.length == 0)
-        {
-            console.log("Only one single operation being done");
-            return;
-        }
-
-        let finalResult = "";
-        let num1 = Number(current_string.slice(leftIndex + 1, multIndex));
-        let num2 = Number(current_string.slice(multIndex + 1, rightIndex));
-        console.log("Number 1:", num1);
-        console.log("Number 2:", num2);
-        // caluate result with number 1 and 2
-
     }
 
 }
+// Do a single *, /, % operation. Ex: 2+3*5 (3*5)will be done
+function evaluate(index, type)
+{
+    let len = current_string.length;
+    // Index where x is
+    let leftIndex = index - 1;
+
+    while (leftIndex >= 0 && (!(isOperation(current_string[leftIndex]))))
+    {
+        leftIndex -= 1;
+    }
+    // First half of string
+    let firstHalf = current_string.slice(0, leftIndex + 1);
+    
+    let rightIndex = index + 1;
+    while (rightIndex < len && (!(isOperation(current_string[rightIndex]))))
+    {
+        rightIndex += 1;
+    }
+    let secondHalf = current_string.slice(rightIndex, len);
+    
+    console.log("Current string:", current_string);
+    console.log("Fist half:", firstHalf);
+    console.log("Second half:", secondHalf);
+
+    if (firstHalf.length == 0 && secondHalf.length == 0)
+    {
+        console.log("Only one single operation being done");
+        return;
+    }
+
+    let finalResult = "";
+    let num1 = Number(current_string.slice(leftIndex + 1, index));
+    let num2 = Number(current_string.slice(index + 1, rightIndex));
+    console.log("Number 1:", num1);
+    console.log("Number 2:", num2);
+
+    finalResult = firstHalf + (type(num1, num2)).toString() + secondHalf;
+    console.log("Final:", finalResult);
+    current_string = finalResult;
+}
+
 // Sets up string to be caluated
 // Splits up the numbers and operations into an array
 function separate()
