@@ -10,6 +10,7 @@ addEventToButtons(buttons);
 
 // Current value
 let current_string = "";
+let lastOperation = "";
 
 const body = document.querySelector("body");
 body.addEventListener("keydown", function(event)
@@ -156,8 +157,7 @@ function handleCalculatorInput(value)
     else if (value == "=" && current_string.length > 0 && (!(isOperation(current_string[current_string.length - 1]))))
     {
         // must not be empty characters and be a valid input no operation spam (prevents automatic 0 if no value is placed)
-        getAnswer();
-        separate();
+        handle_mult_div_mod();
     }   
 }
 
@@ -211,30 +211,34 @@ function deletePrev(string)
     }
 }
 
-function getAnswer()
+function handle_mult_div_mod()
 {
-    // Runs only is there exist a multiple
+    // Runs only is there exist a multiple or divide exist
     while (current_string.includes('×') || current_string.includes('÷'))
     {
         let multIndex = current_string.search('×');
         let divIndex = current_string.search('÷');
+        let modIndex = current_string.search('%');
 
-        if (multIndex > divIndex)
+        if (multIndex >= 0 && (multIndex < divIndex || divIndex < 0) && (multIndex < modIndex || modIndex < 0)) 
         {
             evaluate(multIndex, mult);
-        }
-        else if (divIndex > multIndex)
+        } 
+        else if (divIndex >= 0 && (divIndex < multIndex || multIndex < 0) && (divIndex < modIndex || modIndex < 0)) 
         {
             evaluate(divIndex, div);
+        } 
+        else if (modIndex >= 0 && (modIndex < multIndex || multIndex < 0) && (modIndex < divIndex || divIndex < 0)) 
+        {
+            evaluate(modIndex, mod);
         }
     }
-
+    handle_add_sub();
 }
 // Do a single *, /, % operation. Ex: 2+3*5 (3*5)will be done
 function evaluate(index, type)
 {
     let len = current_string.length;
-    // Index where x is
     let leftIndex = index - 1;
 
     while (leftIndex >= 0 && (!(isOperation(current_string[leftIndex]))))
@@ -249,32 +253,34 @@ function evaluate(index, type)
     {
         rightIndex += 1;
     }
+    // Second half of string
     let secondHalf = current_string.slice(rightIndex, len);
     
     console.log("Current string:", current_string);
     console.log("Fist half:", firstHalf);
     console.log("Second half:", secondHalf);
 
-    if (firstHalf.length == 0 && secondHalf.length == 0)
-    {
-        console.log("Only one single operation being done");
-        return;
-    }
-
     let finalResult = "";
     let num1 = Number(current_string.slice(leftIndex + 1, index));
     let num2 = Number(current_string.slice(index + 1, rightIndex));
     console.log("Number 1:", num1);
     console.log("Number 2:", num2);
+    let newValue = (type(num1, num2)).toString();
 
-    finalResult = firstHalf + (type(num1, num2)).toString() + secondHalf;
+    if (newValue.includes('.'))
+    {
+        let rounded_result = Number(newValue);
+        newValue = rounded_result.toFixed(2).toString();
+    }
+
+    finalResult = firstHalf + newValue + secondHalf;
     console.log("Final:", finalResult);
     current_string = finalResult;
 }
 
 // Sets up string to be caluated
 // Splits up the numbers and operations into an array
-function separate()
+function handle_add_sub()
 {
     // Separate numbers and operations
     let values = [];
@@ -303,9 +309,12 @@ function separate()
     console.log(values);
     console.log(operations);
 
-    if (values.length == 0 || operations.length == 0)
+    // Only * and / operations everything is complete
+    if (values.length == 1 && operations.length == 0)
     {
-        return;
+        console.log("Updating screen to:", current_string);
+        screenInfo.innerHTML = current_string;
+        current_string += lastOperation;
     }
     else
     {
@@ -318,7 +327,6 @@ function getResult(values, operations)
 {
     let result = 0;
     let num1, num2, op;
-    let error = 0;
     values = values.reverse();
     operations = operations.reverse();
 
@@ -338,76 +346,51 @@ function getResult(values, operations)
         {
             result = sub(num1, num2);
         }
-        else if (op === "×")
-        {
-            result = mult(num1, num2);
-        }
-        else if (op === "÷")
-        {   
-            if (num2 == 0)
-            {
-                error = 1;
-                break;
-            }
-            result = div(num1, num2);
-        }
-        else
-        {
-            if (num2 == 0)
-            {
-                error = 1;
-                break;
-            }
-            result = mod(num1, num2);
-        }
         values.push(result);
     }
 
-    if (error == 1)
-    {
-        current_string = "";
-        screenInfo.innerHTML = "Error";
-        return;
-    }
-   
     result = values.pop().toString();
     
     if (result.includes('.'))
     {
-        console.log("Result before round", result);
+        console.log("Before round:", result);
         rounded_result = Number(result);
         result = rounded_result.toFixed(2).toString();
-        console.log("After", result);
     }
 
     // Update the current string and screen to the result
     current_string = result;
     screenInfo.innerHTML = current_string;
-    current_string += op;
+    current_string += lastOperation;
 }
 
 function add(a, b)
 {
+    lastOperation = "+";
     return a + b;
 }
 
 function sub(a, b)
 {
+    lastOperation = "-";
     return a - b;
 }
 
 function mult(a, b)
 {
+    lastOperation = "×";
     return a * b;
 }
 
 function div(a, b)
 {
+    lastOperation = "÷";
     return a / b;
 }
 
 function mod(a, b)
 {
+    lastOperation = "%";
     return a % b;
 }
 
