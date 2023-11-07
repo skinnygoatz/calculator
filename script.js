@@ -267,10 +267,10 @@ function evaluate(index, type)
     console.log("Number 2:", num2);
     let newValue = (type(num1, num2)).toString();
 
+    // add function
     if (newValue.includes('.'))
     {
-        let rounded_result = Number(newValue);
-        newValue = rounded_result.toFixed(2).toString();
+        newValue = round_the_result(newValue);
     }
 
     finalResult = firstHalf + newValue + secondHalf;
@@ -350,18 +350,26 @@ function getResult(values, operations)
     }
 
     result = values.pop().toString();
-    
+
     if (result.includes('.'))
     {
-        console.log("Before round:", result);
-        rounded_result = Number(result);
-        result = rounded_result.toFixed(2).toString();
+        result = round_the_result(result);
     }
-
+    
     // Update the current string and screen to the result
     current_string = result;
     screenInfo.innerHTML = current_string;
     current_string += lastOperation;
+}
+
+function round_the_result(value)
+{
+    console.log("Before round:", value);
+    let rounded_result = Number(value);
+    value = rounded_result.toFixed(2).toString();
+    console.log("After round:", value);
+
+    return value;
 }
 
 function add(a, b)
