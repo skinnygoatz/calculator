@@ -365,11 +365,20 @@ function getResult(values, operations)
 function round_the_result(value)
 {
     console.log("Before round:", value);
-    let rounded_result = Number(value);
-    value = rounded_result.toFixed(2).toString();
-    console.log("After round:", value);
+    let num_decimal_places = 3;
+    let roundedNum = Number(value).toFixed(num_decimal_places).toString();
 
-    return value;
+    let lastIndex = roundedNum.length - 1;
+    while (roundedNum[lastIndex] == '0')
+    {
+        num_decimal_places -= 1;
+        roundedNum = Number(roundedNum).toFixed(num_decimal_places).toString();
+        lastIndex -= 1;
+        console.log("ROUNDING:",roundedNum);
+    }
+
+    console.log("After round:", roundedNum);
+    return roundedNum;
 }
 
 function add(a, b)
