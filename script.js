@@ -6,6 +6,7 @@ const screenInfo = document.querySelector(".screenInfo");
 const buttons = document.querySelectorAll("button");
 
 // Add click event to all buttons
+styleButtons(buttons);
 addEventToButtons(buttons);
 
 // Current value
@@ -46,6 +47,10 @@ body.addEventListener("keydown", function(event)
     }
 });
 
+// -----------------------------
+//          FUNCTIONS
+// -----------------------------
+
 // Add click events too every button
 function addEventToButtons(listOfBtns)
 {
@@ -53,7 +58,32 @@ function addEventToButtons(listOfBtns)
     {
         listOfBtns[i].addEventListener('click', e => {updateScreen(listOfBtns[i].innerText)});
     }
+}
+// Style buttons
+function styleButtons(listOfBtns)
+{
+    for (let i = 0; i < listOfBtns.length; i++)
+    {
+        let current = listOfBtns[i];
+        if (current.innerHTML == "0")
+        {
+            current.style.flexGrow = "0.7";
+        }
+        else
+        {
+            current.style.width = "70px";
+            current.style.height = "70px";
+        }
+        current.style.fontSize = "30px";
+        current.style.borderRadius = "30px";
 
+        let non_numbers = ["AC", "C", "%", "÷", "×", "-", "+", "="];
+        if (current.innerHTML in non_numbers)
+        {
+            console.log(non_numbers[current.innerText]);
+            current.style.backgroundColor = "red";
+        }
+    }
 }
 
 function updateScreen(value)
@@ -62,6 +92,7 @@ function updateScreen(value)
     // If input is 0 and string is empty return
     if ((value === "0" && current_string.length == 0))
     {
+        console.log("Can't place a zero in front of another zero");
         return;
     }
     

@@ -31,13 +31,13 @@ body {
     margin-top: 20px;
     border: 2px solid black;
     border-radius: 10px;
-    padding: 20px;
+    padding: 25px;
 }
 .screenInfo {
     overflow-wrap: break-word;
     text-align: end;
     width: 280px;
-    font-size: 30px;
+    font-size: 40px;
 }
 
 .buttons {
@@ -47,7 +47,7 @@ body {
     align-items: center;
     margin-top: 15px;
     width: 350px;
-    gap: 8px;
+    gap: 7px;
 }
 
 .row1,
@@ -58,36 +58,6 @@ body {
     display: flex;
     justify-content: space-evenly;
     width: 100%;
-}
-
-.clear,
-.erase,
-.mod,
-.div,
-.seven,
-.eigth,
-.nine,
-.add,
-.four,
-.five, 
-.six,
-.sub,
-.one,
-.two,
-.three,
-.mult,
-.equal,
-.dot {
-    font-size: 20px;
-    width: 70px;
-    height: 70px;
-    border-radius: 50%;
-}
-
-.zero {
-    font-size: 20px;
-    flex-grow: 0.7;
-    border-radius: 100px;
 }
 
 
