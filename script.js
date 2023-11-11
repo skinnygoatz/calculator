@@ -7,7 +7,6 @@ const buttons = document.querySelectorAll("button");
 
 // Add click event to all buttons
 styleButtons(buttons);
-addEventToButtons(buttons);
 
 // Current value
 let current_string = "";
@@ -51,20 +50,36 @@ body.addEventListener("keydown", function(event)
 //          FUNCTIONS
 // -----------------------------
 
-// Add click events too every button
-function addEventToButtons(listOfBtns)
-{
-    for (let i = 0; i < listOfBtns.length; i++)
-    {
-        listOfBtns[i].addEventListener('click', e => {updateScreen(listOfBtns[i].innerText)});
-    }
-}
-// Style buttons
+// Style buttons and adds mouseover, mouseout, click events
 function styleButtons(listOfBtns)
 {
+    const operators = ["AC", "C", "%", "÷", "×", "-", "+", "="];
+
     for (let i = 0; i < listOfBtns.length; i++)
     {
         let current = listOfBtns[i];
+        let b = current.innerHTML;
+
+        // Add click event
+        current.addEventListener('click', e => {updateScreen(e.currentTarget.innerText)});
+
+        // Hover effects
+        if (operators.includes(b))
+        {
+            current.style.backgroundColor = "red";
+            current.style.color = "white";
+            listOfBtns[i].addEventListener('mouseover', () => {listOfBtns[i].style.backgroundColor = '#e60004';});
+            listOfBtns[i].addEventListener('mouseout', () => {listOfBtns[i].style.backgroundColor = '#ff0004';});
+        }
+        else
+        {
+            current.style.backgroundColor = "white";
+            current.style.color = "black";
+            listOfBtns[i].addEventListener('mouseover', () => {listOfBtns[i].style.backgroundColor = '#e6e6e6';});
+            listOfBtns[i].addEventListener('mouseout', () => {listOfBtns[i].style.backgroundColor = '#ffffff';});
+        }
+        
+        // "0" button sized differently, every other buttons the same size
         if (current.innerHTML == "0")
         {
             current.style.flexGrow = "0.7";
@@ -76,31 +91,25 @@ function styleButtons(listOfBtns)
         }
         current.style.fontSize = "30px";
         current.style.borderRadius = "30px";
-
-        let non_numbers = ["AC", "C", "%", "÷", "×", "-", "+", "="];
-        if (current.innerHTML in non_numbers)
-        {
-            console.log(non_numbers[current.innerText]);
-            current.style.backgroundColor = "red";
-        }
+        current.style.border = "2px solid black";
     }
 }
 
-function updateScreen(value)
+function updateScreen(calculatorInput)
 {
     // Zero case: prevent a string of zeros
     // If input is 0 and string is empty return
-    if ((value === "0" && current_string.length == 0))
+    if ((calculatorInput === "0" && current_string.length == 0))
     {
         console.log("Can't place a zero in front of another zero");
         return;
     }
     
     // If operation is pressed while string is empty
-    if (current_string.length == 0 && isOperation(value))
+    if (current_string.length == 0 && isOperation(calculatorInput))
     {
         current_string = 0;
-        current_string += value;
+        current_string += calculatorInput;
         screenInfo.innerHTML = current_string;
         return;
     }
@@ -108,7 +117,7 @@ function updateScreen(value)
     // If value is an operation update it accordingly
     // Update operation will check if the last value in string is also an operation
     // If yes swap if not continue on
-    if (isOperation(value) && updateOperation(value))
+    if (isOperation(calculatorInput) && updateOperation(calculatorInput))
     {
         return;
     }
@@ -119,7 +128,7 @@ function updateScreen(value)
 
     // Valid input update correctly
     // Number is operation has been pressed
-    handleCalculatorInput(value);
+    handleCalculatorInput(calculatorInput);
 }
 
 // Check is either %, ÷, ×, -, +, . were pressed
