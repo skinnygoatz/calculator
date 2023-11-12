@@ -8,9 +8,12 @@ const buttons = document.querySelectorAll("button");
 // Add click event to all buttons
 styleButtons(buttons);
 
-// Current value
+// Holds current equation
 let current_string = "";
+// Holds last operation pressed
 let lastOperation = "";
+// Set to 0 if no error found
+let error = 0;
 
 const body = document.querySelector("body");
 body.addEventListener("keydown", function(event)
@@ -182,8 +185,10 @@ function handleCalculatorInput(value)
     }
     else if (value == "AC")
     {
+        error = 0;
         current_string = "";
         screenInfo.innerHTML = 0;
+        buttons_on();
     }
     else if ((value == "C") && (current_string.length > 0))
     {
@@ -196,8 +201,8 @@ function handleCalculatorInput(value)
     }
     else if (value == "=" && current_string.length > 0 && (!(isOperation(current_string[current_string.length - 1]))))
     {
-        // must not be empty characters and be a valid input no operation spam (prevents automatic 0 if no value is placed)
-        handle_mult_div_mod();
+        // Handles higher operations first
+        handle_mult_div();
     }   
 }
 
@@ -251,29 +256,30 @@ function deletePrev(string)
     }
 }
 
-function handle_mult_div_mod()
+function handle_mult_div()
 {
     // Runs only is there exist a multiple or divide exist
     while (current_string.includes('×') || current_string.includes('÷'))
     {
         let multIndex = current_string.search('×');
         let divIndex = current_string.search('÷');
-        let modIndex = current_string.search('%');
 
-        if (multIndex >= 0 && (multIndex < divIndex || divIndex < 0) && (multIndex < modIndex || modIndex < 0)) 
+        if (multIndex >= 0 && (multIndex < divIndex || divIndex < 0)) 
         {
             evaluate(multIndex, mult);
         } 
-        else if (divIndex >= 0 && (divIndex < multIndex || multIndex < 0) && (divIndex < modIndex || modIndex < 0)) 
+        else if (divIndex >= 0 && (divIndex < multIndex || multIndex < 0)) 
         {
             evaluate(divIndex, div);
+
+            if (error == 1)
+            {
+                errorAlert();
+                return;
+            }
         } 
-        else if (modIndex >= 0 && (modIndex < multIndex || multIndex < 0) && (modIndex < divIndex || divIndex < 0)) 
-        {
-            evaluate(modIndex, mod);
-        }
     }
-    handle_add_sub();
+    handle_add_sub_mod();
 }
 // Do a single *, /, % operation. Ex: 2+3*5 (3*5)will be done
 function evaluate(index, type)
@@ -307,6 +313,11 @@ function evaluate(index, type)
     console.log("Number 2:", num2);
     let newValue = (type(num1, num2)).toString();
 
+    if (error == 1)
+    {
+        return;
+    }
+
     // add function
     if (newValue.includes('.'))
     {
@@ -320,7 +331,7 @@ function evaluate(index, type)
 
 // Sets up string to be caluated
 // Splits up the numbers and operations into an array
-function handle_add_sub()
+function handle_add_sub_mod()
 {
     // Separate numbers and operations
     let values = [];
@@ -386,6 +397,16 @@ function getResult(values, operations)
         {
             result = sub(num1, num2);
         }
+        else if (op === "%")
+        {
+            result = mod(num1, num2);
+
+            if (error == 1)
+            {
+                errorAlert();
+                return;
+            }
+        }
         values.push(result);
     }
 
@@ -421,6 +442,34 @@ function round_the_result(value)
     return roundedNum;
 }
 
+function errorAlert()
+{
+    // Display error message to screen
+    screenInfo.innerHTML = "Error";
+
+    // Disable all buttons except AC
+    buttons_off();
+}
+
+function buttons_off()
+{  
+    for (let i = 0; i < buttons.length; i++)
+    {
+        if (buttons[i].innerHTML != "AC")
+        {
+            buttons[i].disabled = true;
+        }
+    }
+
+}
+function buttons_on()
+{
+    for (let i = 0; i < buttons.length; i++)
+    {   
+        buttons[i].disabled = false;
+    }
+}
+
 function add(a, b)
 {
     lastOperation = "+";
@@ -441,12 +490,20 @@ function mult(a, b)
 
 function div(a, b)
 {
+    if (b == 0)
+    {
+        error = 1;
+    }
     lastOperation = "÷";
     return a / b;
 }
 
 function mod(a, b)
 {
+    if (b == 0)
+    {
+        error = 1;
+    }
     lastOperation = "%";
     return a % b;
 }
