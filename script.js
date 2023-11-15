@@ -58,6 +58,7 @@ function styleButtons(listOfBtns)
 {
     const operators = ["AC", "C", "%", "÷", "×", "-", "+", "="];
 
+    // Loops through every button
     for (let i = 0; i < listOfBtns.length; i++)
     {
         let current = listOfBtns[i];
@@ -66,7 +67,7 @@ function styleButtons(listOfBtns)
         // Add click event
         current.addEventListener('click', e => {updateScreen(e.currentTarget.innerText)});
 
-        // Hover effects
+        // Hover effects (colors)
         if (operators.includes(b))
         {
             current.style.backgroundColor = "red";
@@ -82,7 +83,7 @@ function styleButtons(listOfBtns)
             listOfBtns[i].addEventListener('mouseout', () => {listOfBtns[i].style.backgroundColor = '#ffffff';});
         }
         
-        // "0" button sized differently, every other buttons the same size
+        // "0" button sized differently, every other buttons is the same size
         if (current.innerHTML == "0")
         {
             current.style.flexGrow = "0.7";
@@ -92,23 +93,24 @@ function styleButtons(listOfBtns)
             current.style.width = "70px";
             current.style.height = "70px";
         }
+
         current.style.fontSize = "30px";
         current.style.borderRadius = "30px";
         current.style.border = "2px solid black";
     }
 }
 
+// Called when button is used
+// Takes in the input
 function updateScreen(calculatorInput)
 {
-    // Zero case: prevent a string of zeros
-    // If input is 0 and string is empty return
+    // On startup prevents a string of zeros
     if ((calculatorInput === "0" && current_string.length == 0))
     {
-        console.log("Can't place a zero in front of another zero");
         return;
     }
     
-    // If operation is pressed while string is empty
+    // On startup if operation is pressed before any numbers
     if (current_string.length == 0 && isOperation(calculatorInput))
     {
         current_string = 0;
@@ -117,56 +119,40 @@ function updateScreen(calculatorInput)
         return;
     }
 
-    // If value is an operation update it accordingly
-    // Update operation will check if the last value in string is also an operation
-    // If yes swap if not continue on
+    // Overrides operation 
     if (isOperation(calculatorInput) && updateOperation(calculatorInput))
     {
         return;
     }
 
-    // -----------------
-    // Succuessful input
-    // -----------------
-
-    // Valid input update correctly
-    // Number is operation has been pressed
+    // Valid input handle accordingly 
     handleCalculatorInput(calculatorInput);
 }
 
-// Check is either %, ÷, ×, -, +, . were pressed
-// True if pressed
-// False if not
+// True [%, ÷, ×, -, +, .] 
+// False otherwise
 function isOperation(value)
 {
-    if (current_string.length > 0 && current_string[current_string.length - 1] == '.')
-    {
-        console.log("No more decimal points allow");
-        return false;
-    }
     const ops = ['%', '÷', '×', '-', '+'];
-    for (let i = 0; i < ops.length; i++)
+    if (ops.includes(value))
     {
-        if (value === ops[i])
-        {
-            return true;
-        }
+        return true;
     }
     return false;
 }
 
-// Updates the operation if another one is pressed
+// Takes in an operation and overrides the previous one
 // Ex: 9 x 9 x, (presses +) => 9 x 9 +
-// Returns: True if changed
-// False if not
-function updateOperation(value)
+// Returns: True if changed | False otherwise
+function updateOperation(calculatorInput)
 {
     let last_index = current_string.length - 1;
     let last_char = current_string[last_index];
-    if (current_string.length > 0 && isOperation(value) && isOperation(last_char))
+
+    if (current_string.length > 0 && isOperation(calculatorInput) && isOperation(last_char))
     {
         let temp = current_string.split("");
-        temp[last_index] = value;
+        temp[last_index] = calculatorInput;
         
         current_string = temp.join("");
         screenInfo.innerHTML = current_string;
@@ -175,14 +161,17 @@ function updateOperation(value)
     return false;
 }
 
-// Takes in a button value and performs the proper action
+
+// Takes the button input and performs the proper action
 function handleCalculatorInput(value)
 {
+    // If a number or operation => add it to string, update the screen
     if ((value in [0,1,2,3,4,5,6,7,8,9]) || isOperation(value))
     {
         current_string += value;
         screenInfo.innerHTML = current_string;
     }
+    // If equal => reset everything
     else if (value == "AC")
     {
         error = 0;
@@ -190,45 +179,48 @@ function handleCalculatorInput(value)
         screenInfo.innerHTML = 0;
         buttons_on();
     }
+    // If C and string isn't empty => delete the last most from string 
     else if ((value == "C") && (current_string.length > 0))
     {
         deletePrev(current_string);
     }
+    // If . and placement is valid => add it to string, update the screen
     else if (value == '.' && isValidDecimal(value))
     {
         current_string += value;
         screenInfo.innerHTML = current_string;
     }
+    // If = and string isn't empty and a valid equation => start calculation 
     else if (value == "=" && current_string.length > 0 && (!(isOperation(current_string[current_string.length - 1]))))
     {
-        // Handles higher operations first
+        // Handle multiplication and division first
         handle_mult_div();
     }   
 }
 
-
-// User entered a decimal check if it be placed (Ex: 9. is ok 9.9. is not)
+// Takes in a decimal point
+// Check if it can be placed (Ex: 9, (press .) => 9. is ok. 9.9, (press .) => 9.9. is not)
+// True if can place | False otherwise
 function isValidDecimal(value)
 {
-    // String is empty and first click is decimal
+    // String is empty => decimal is allowed
     if (current_string.length == 0)
     {
         current_string = "0";
         return true;
     }
 
-    // Operation is the last value in string so cant place decimal
+    // Operation is the last most char in string => decimal is NOT allowed
     if (current_string.length > 0 && isOperation(current_string[current_string.length - 1]))
     {
-        console.log("Operation is in the way");
         return false;
     }
 
-    // Checks if current number has a decimal or not
+    // Checks if current number contains a decimal
+    // If a decmail is found before an operation return false
     let i = current_string.length - 1;
     while (i >= 0 && !(isOperation(current_string[i])))
     {
-        console.log("Valve:", current_string[i]);
         if (current_string[i] === '.')
         {
             return false;
@@ -238,9 +230,9 @@ function isValidDecimal(value)
     
     return true;
 }
-// Delete the last value in string
-// Returns an empty string if there were only 1 character
-// Else returns the string with the last value removed
+
+// Takes in the current string
+// Delete the last char in the current string
 function deletePrev(string)
 {
     if (string.length == 1)
