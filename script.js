@@ -248,9 +248,11 @@ function deletePrev(string)
     }
 }
 
+// Evalutes the current string
+// Calculates multiplication and division from left to right
 function handle_mult_div()
 {
-    // Runs only is there exist a multiple or divide exist
+    // Continues looping until all multiplication and division are completed
     while (current_string.includes('×') || current_string.includes('÷'))
     {
         let multIndex = current_string.search('×');
@@ -264,6 +266,7 @@ function handle_mult_div()
         {
             evaluate(divIndex, div);
 
+            // Divide by 0 error
             if (error == 1)
             {
                 errorAlert();
@@ -271,9 +274,13 @@ function handle_mult_div()
             }
         } 
     }
+    // Once all multiplication and division are completed finish the rest of the equation
     handle_add_sub_mod();
 }
-// Do a single *, /, % operation. Ex: 2+3*5 (3*5)will be done
+
+// Index = index of mult/div symbol
+// Type = mult/div functions
+// A single multiplication/division will be done. Ex: 2+3*5 (3*5) will be done
 function evaluate(index, type)
 {
     let len = current_string.length;
@@ -283,7 +290,7 @@ function evaluate(index, type)
     {
         leftIndex -= 1;
     }
-    // First half of string
+    // Left side of the equation
     let firstHalf = current_string.slice(0, leftIndex + 1);
     
     let rightIndex = index + 1;
@@ -291,38 +298,35 @@ function evaluate(index, type)
     {
         rightIndex += 1;
     }
-    // Second half of string
+    // Right side of the equation
     let secondHalf = current_string.slice(rightIndex, len);
     
-    console.log("Current string:", current_string);
-    console.log("Fist half:", firstHalf);
-    console.log("Second half:", secondHalf);
-
-    let finalResult = "";
     let num1 = Number(current_string.slice(leftIndex + 1, index));
     let num2 = Number(current_string.slice(index + 1, rightIndex));
-    console.log("Number 1:", num1);
-    console.log("Number 2:", num2);
+   
+    // Calculate result and change to string 
     let newValue = (type(num1, num2)).toString();
 
+    // If divide by 0 error
     if (error == 1)
     {
         return;
     }
 
-    // add function
+    // Rounds result if needed
     if (newValue.includes('.'))
     {
         newValue = round_the_result(newValue);
     }
 
-    finalResult = firstHalf + newValue + secondHalf;
-    console.log("Final:", finalResult);
+    let finalResult = firstHalf + newValue + secondHalf;
+    // Update current string
     current_string = finalResult;
 }
 
-// Sets up string to be caluated
-// Splits up the numbers and operations into an array
+// Evalutes the current string
+// Prepares string to be calculated left to right
+// Puts numbers and operations into separate arrays
 function handle_add_sub_mod()
 {
     // Separate numbers and operations
@@ -349,13 +353,9 @@ function handle_add_sub_mod()
     }
     values.push(current_value);
 
-    console.log(values);
-    console.log(operations);
-
-    // Only * and / operations everything is complete
-    if (values.length == 1 && operations.length == 0)
+    // No operations to handle (No addition, subtraction, or modular)
+    if (operations.length == 0)
     {
-        console.log("Updating screen to:", current_string);
         screenInfo.innerHTML = current_string;
         current_string += lastOperation;
     }
@@ -365,7 +365,10 @@ function handle_add_sub_mod()
     }
 }
 
-// Get the result given the numbers and operations array
+// Takes in 2 arrays
+// Values = numbers in equation
+// Operations = operations in equation
+// Calculates in a stack format 
 function getResult(values, operations)
 {
     let result = 0;
@@ -393,6 +396,7 @@ function getResult(values, operations)
         {
             result = mod(num1, num2);
 
+            // Mod by 0 error
             if (error == 1)
             {
                 errorAlert();
@@ -404,6 +408,7 @@ function getResult(values, operations)
 
     result = values.pop().toString();
 
+    // Round result if needed
     if (result.includes('.'))
     {
         result = round_the_result(result);
@@ -415,6 +420,9 @@ function getResult(values, operations)
     current_string += lastOperation;
 }
 
+
+// Takes in a decimal point value
+// Keeps no more than 3 digits after the decimal 
 function round_the_result(value)
 {
     console.log("Before round:", value);
@@ -434,15 +442,19 @@ function round_the_result(value)
     return roundedNum;
 }
 
+// Displays error message on screen 
 function errorAlert()
 {
     // Display error message to screen
     screenInfo.innerHTML = "Error";
 
-    // Disable all buttons except AC
+    // Disable all keys
+
+    // Disable all buttons (except AC) 
     buttons_off();
 }
 
+// Shuts off all buttons (except AC)
 function buttons_off()
 {  
     for (let i = 0; i < buttons.length; i++)
@@ -454,6 +466,7 @@ function buttons_off()
     }
 
 }
+// Turns all all buttons
 function buttons_on()
 {
     for (let i = 0; i < buttons.length; i++)
