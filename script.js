@@ -1,3 +1,5 @@
+// Body
+const body = document.querySelector("body");
 // Screen Info
 const screen = document.querySelector(".screen");
 const screenInfo = document.querySelector(".screenInfo");
@@ -5,8 +7,11 @@ const screenInfo = document.querySelector(".screenInfo");
 // Buttons
 const buttons = document.querySelectorAll("button");
 
+let keysEnabled = true;
+
 // Add click event to all buttons
 styleButtons(buttons);
+enableKeys();
 
 // Holds current equation
 let current_string = "";
@@ -14,41 +19,6 @@ let current_string = "";
 let lastOperation = "";
 // Set to 0 if no error found
 let error = 0;
-
-const body = document.querySelector("body");
-body.addEventListener("keydown", function(event)
-{
-    event.preventDefault();
-    if (event.key in [0,1,2,3,4,5,6,7,8,9])
-    {
-        updateScreen(event.key);
-    }
-    else if (isOperation(event.key))
-    {
-        updateScreen(event.key);
-    }
-    else if (event.key === '*')
-    {
-        updateScreen('×');
-    }
-    else if (event.key === '/')
-    {
-        updateScreen('÷');
-    }
-    else if (event.key === '.')
-    {
-        updateScreen('.');
-    }
-    else if (event.key === '=' || event.key === "Enter")
-    {
-        updateScreen('=');
-    }
-    else if (event.key === "Backspace")
-    {
-        updateScreen('C');
-    }
-});
-
 // -----------------------------
 //          FUNCTIONS
 // -----------------------------
@@ -178,6 +148,7 @@ function handleCalculatorInput(value)
         current_string = "";
         screenInfo.innerHTML = 0;
         buttons_on();
+        keysEnabled = true;
     }
     // If C and string isn't empty => delete the last most from string 
     else if ((value == "C") && (current_string.length > 0))
@@ -425,7 +396,14 @@ function getResult(values, operations)
 // Keeps no more than 3 digits after the decimal 
 function round_the_result(value)
 {
-    console.log("Before round:", value);
+    let decimal_index = value.search(/\./);
+    let hundredths = value.slice(decimal_index + 1,value.length);
+
+    // Check if rounding is need
+    if (hundredths.length <= 3)
+    {
+        return value;
+    }
     let num_decimal_places = 3;
     let roundedNum = Number(value).toFixed(num_decimal_places).toString();
 
@@ -435,10 +413,8 @@ function round_the_result(value)
         num_decimal_places -= 1;
         roundedNum = Number(roundedNum).toFixed(num_decimal_places).toString();
         lastIndex -= 1;
-        console.log("ROUNDING:",roundedNum);
     }
 
-    console.log("After round:", roundedNum);
     return roundedNum;
 }
 
@@ -449,6 +425,7 @@ function errorAlert()
     screenInfo.innerHTML = "Error";
 
     // Disable all keys
+    disableKeys();
 
     // Disable all buttons (except AC) 
     buttons_off();
@@ -473,6 +450,51 @@ function buttons_on()
     {   
         buttons[i].disabled = false;
     }
+}
+
+// Turn on keys
+function enableKeys() 
+{
+    if (!keysEnabled)
+    {
+        return;
+    }
+    body.addEventListener("keydown", function(event) 
+    {
+        event.preventDefault();
+        if (keysEnabled) 
+        {
+            if (event.key in [0, 1, 2, 3, 4, 5, 6, 7, 8, 9]) 
+            {
+                updateScreen(event.key);
+            } else if (isOperation(event.key)) 
+            {
+                updateScreen(event.key);
+            } else if (event.key === '*') 
+            {
+                updateScreen('×');
+            } else if (event.key === '/') 
+            {
+                updateScreen('÷');
+            } else if (event.key === '.') 
+            {
+                updateScreen('.');
+            } else if (event.key === '=' || event.key === "Enter") 
+            {
+                updateScreen('=');
+            } else if (event.key === "Backspace") 
+            {
+                updateScreen('C');
+            }
+        }
+    });
+}
+
+// Disable keys
+function disableKeys() 
+{
+    console.log("LOCKED KEYS");
+    keysEnabled = false;
 }
 
 function add(a, b)
